@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { isValidPhoneNumber } from 'react-phone-number-input';
+import { isValidPhoneNumber } from 'react-phone-number-input/max';
 import { buildWhatsAppLink, buildOrderWhatsAppMessage } from '@/lib/whatsapp';
 import PhoneField from './PhoneField';
 
@@ -34,6 +34,18 @@ export default function ServiceEnquiryForm({ serviceId, serviceTitle, locale }) 
   function handleWhatsappChange(value) {
     setForm((prev) => ({ ...prev, whatsapp: value || '' }));
     if (errors.whatsapp) setErrors((prev) => ({ ...prev, whatsapp: '' }));
+  }
+
+  function handlePhoneBlur() {
+    if (form.phone && !isValidPhoneNumber(form.phone)) {
+      setErrors((prev) => ({ ...prev, phone: t('invalidPhone') }));
+    }
+  }
+
+  function handleWhatsappBlur() {
+    if (form.whatsapp && !isValidPhoneNumber(form.whatsapp)) {
+      setErrors((prev) => ({ ...prev, whatsapp: t('invalidPhone') }));
+    }
   }
 
   async function handleSubmit(e) {
@@ -106,8 +118,8 @@ export default function ServiceEnquiryForm({ serviceId, serviceTitle, locale }) 
         <Field label={t('email')}>
           <input className="input-field" type="email" name="email" value={form.email} onChange={handleChange} />
         </Field>
-        <PhoneField label={t('phone')} required value={form.phone} onChange={handlePhoneChange} error={errors.phone} />
-        <PhoneField label={t('whatsapp')} value={form.whatsapp} onChange={handleWhatsappChange} error={errors.whatsapp} />
+        <PhoneField label={t('phone')} required value={form.phone} onChange={handlePhoneChange} onBlur={handlePhoneBlur} error={errors.phone} />
+        <PhoneField label={t('whatsapp')} value={form.whatsapp} onChange={handleWhatsappChange} onBlur={handleWhatsappBlur} error={errors.whatsapp} />
         <Field label={t('dob')}>
           <input className="input-field" type="date" name="dob" value={form.dob} onChange={handleChange} />
         </Field>

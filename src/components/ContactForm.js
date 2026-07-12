@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { isValidPhoneNumber } from 'react-phone-number-input';
+import { isValidPhoneNumber } from 'react-phone-number-input/max';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
 import PhoneField from './PhoneField';
 
@@ -20,6 +20,12 @@ export default function ContactForm({ locale }) {
   function handlePhoneChange(value) {
     setForm((prev) => ({ ...prev, phone: value || '' }));
     if (phoneError) setPhoneError('');
+  }
+
+  function handlePhoneBlur() {
+    if (form.phone && !isValidPhoneNumber(form.phone)) {
+      setPhoneError(t('invalidPhone'));
+    }
   }
 
   async function handleSubmit(e) {
@@ -78,7 +84,7 @@ export default function ContactForm({ locale }) {
         <span className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</span>
         <input className="input-field" type="email" name="email" value={form.email} onChange={handleChange} />
       </label>
-      <PhoneField label={`${t('phone')} *`} value={form.phone} onChange={handlePhoneChange} error={phoneError} />
+      <PhoneField label={`${t('phone')} *`} value={form.phone} onChange={handlePhoneChange} onBlur={handlePhoneBlur} error={phoneError} />
       <label className="block">
         <span className="block text-sm font-medium text-gray-700 mb-1">{t('message')}</span>
         <textarea className="input-field" name="message" rows={4} value={form.message} onChange={handleChange} />
