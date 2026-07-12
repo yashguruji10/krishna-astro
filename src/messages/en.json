@@ -49,7 +49,8 @@
     "successMessage": "Your request has been received. We will contact you shortly.",
     "errorMessage": "Something went wrong. Please try again or contact us directly.",
     "sendWhatsapp": "Send via WhatsApp",
-    "required": "Required"
+    "required": "Required",
+    "invalidPhone": "Please enter a valid phone number"
   },
   "contact": {
     "title": "Contact",

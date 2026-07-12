@@ -91,6 +91,45 @@ h1, h2, h3, h4 {
   outline-offset: 1px;
 }
 
+/* ── Phone input with country selector ── */
+.PhoneInput.phone-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #e3d6c2;
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.9rem;
+  background: #fff;
+}
+.PhoneInput.phone-field:focus-within {
+  outline: 2px solid #E66A1B;
+  outline-offset: 1px;
+}
+.PhoneInput.phone-field.phone-field-error {
+  border-color: #dc2626;
+}
+.phone-field .PhoneInputInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  min-width: 0;
+}
+.phone-field .PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.phone-field .PhoneInputCountrySelect {
+  cursor: pointer;
+}
+.phone-field .PhoneInputCountryIcon {
+  width: 1.3em;
+  height: 1.3em;
+  box-shadow: none;
+}
+
 .admin-sidebar a.active {
   background-color: #E66A1B;
   color: #fff;

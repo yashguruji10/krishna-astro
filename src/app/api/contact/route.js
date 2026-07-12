@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { sendMail } from '@/lib/mail';
 import { getSiteSettings } from '@/lib/siteSettings';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { z } from 'zod';
 
 const contactSchema = z.object({
   name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(5),
+  email: z.union([z.string().email(), z.literal('')]).optional(),
+  phone: z.string().refine((val) => isValidPhoneNumber(val), { message: 'Invalid phone number' }),
   message: z.string().optional(),
   locale: z.string().optional()
 });
@@ -28,7 +29,7 @@ export async function POST(req) {
       html: `
         <h2>New Contact Form Message</h2>
         <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Email:</strong> ${data.email}</p>
+        ${data.email ? `<p><strong>Email:</strong> ${data.email}</p>` : ''}
         <p><strong>Phone:</strong> ${data.phone}</p>
         ${data.message ? `<p><strong>Message:</strong> ${data.message}</p>` : ''}
       `

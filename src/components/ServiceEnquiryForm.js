@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import { buildWhatsAppLink, buildOrderWhatsAppMessage } from '@/lib/whatsapp';
+import PhoneField from './PhoneField';
 
 export default function ServiceEnquiryForm({ serviceId, serviceTitle, locale }) {
   const t = useTranslations('service');
@@ -18,13 +20,37 @@ export default function ServiceEnquiryForm({ serviceId, serviceTitle, locale }) 
     birthPlace: '',
     message: ''
   });
+  const [errors, setErrors] = useState({ phone: '', whatsapp: '' });
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  function handlePhoneChange(value) {
+    setForm((prev) => ({ ...prev, phone: value || '' }));
+    if (errors.phone) setErrors((prev) => ({ ...prev, phone: '' }));
+  }
+
+  function handleWhatsappChange(value) {
+    setForm((prev) => ({ ...prev, whatsapp: value || '' }));
+    if (errors.whatsapp) setErrors((prev) => ({ ...prev, whatsapp: '' }));
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    const nextErrors = { phone: '', whatsapp: '' };
+    if (!form.phone || !isValidPhoneNumber(form.phone)) {
+      nextErrors.phone = t('invalidPhone');
+    }
+    if (form.whatsapp && !isValidPhoneNumber(form.whatsapp)) {
+      nextErrors.whatsapp = t('invalidPhone');
+    }
+    if (nextErrors.phone || nextErrors.whatsapp) {
+      setErrors(nextErrors);
+      return;
+    }
+
     setStatus('submitting');
     try {
       const res = await fetch('/api/orders', {
@@ -77,15 +103,11 @@ export default function ServiceEnquiryForm({ serviceId, serviceTitle, locale }) 
         <Field label={t('name')} required>
           <input className="input-field" type="text" name="name" required value={form.name} onChange={handleChange} />
         </Field>
-        <Field label={t('email')} required>
-          <input className="input-field" type="email" name="email" required value={form.email} onChange={handleChange} />
+        <Field label={t('email')}>
+          <input className="input-field" type="email" name="email" value={form.email} onChange={handleChange} />
         </Field>
-        <Field label={t('phone')} required>
-          <input className="input-field" type="tel" name="phone" required value={form.phone} onChange={handleChange} />
-        </Field>
-        <Field label={t('whatsapp')}>
-          <input className="input-field" type="tel" name="whatsapp" value={form.whatsapp} onChange={handleChange} />
-        </Field>
+        <PhoneField label={t('phone')} required value={form.phone} onChange={handlePhoneChange} error={errors.phone} />
+        <PhoneField label={t('whatsapp')} value={form.whatsapp} onChange={handleWhatsappChange} error={errors.whatsapp} />
         <Field label={t('dob')}>
           <input className="input-field" type="date" name="dob" value={form.dob} onChange={handleChange} />
         </Field>

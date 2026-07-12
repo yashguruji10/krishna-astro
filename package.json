@@ -13,12 +13,14 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
+    "libphonenumber-js": "^1.13.8",
     "mongoose": "^8.5.1",
     "next": "14.2.33",
     "next-intl": "^3.17.2",
     "nodemailer": "^8.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-phone-number-input": "^3.4.17",
     "zod": "^3.23.8"
   },
   "devDependencies": {

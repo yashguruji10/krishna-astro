@@ -15,7 +15,7 @@ export function buildOrderWhatsAppMessage(order, serviceTitle) {
     `Service: ${serviceTitle}`,
     `Name: ${order.name}`,
     `Phone: ${order.phone}`,
-    `Email: ${order.email}`,
+    order.email ? `Email: ${order.email}` : null,
     order.dob ? `DOB: ${order.dob}` : null,
     order.birthTime ? `Birth Time: ${order.birthTime}` : null,
     order.birthPlace ? `Birth Place: ${order.birthPlace}` : null,

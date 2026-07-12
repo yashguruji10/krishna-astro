@@ -5,7 +5,7 @@ const OrderSchema = new mongoose.Schema(
     service: { type: mongoose.Schema.Types.ObjectId, ref: 'Service', required: true },
     serviceTitle: { type: String }, // snapshot of title (in the language the user used)
     name: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String },
     phone: { type: String, required: true },
     whatsapp: { type: String },
     dob: { type: String }, // date of birth, optional, useful for jyotish

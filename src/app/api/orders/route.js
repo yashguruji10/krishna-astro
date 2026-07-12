@@ -4,15 +4,16 @@ import Order from '@/models/Order';
 import { sendMail } from '@/lib/mail';
 import { getSiteSettings } from '@/lib/siteSettings';
 import { getAdminFromCookies } from '@/lib/auth';
+import { isValidPhoneNumber } from 'libphonenumber-js';
 import { z } from 'zod';
 
 const orderSchema = z.object({
   service: z.string().min(1),
   serviceTitle: z.string().min(1),
   name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(5),
-  whatsapp: z.string().optional(),
+  email: z.union([z.string().email(), z.literal('')]).optional(),
+  phone: z.string().refine((val) => isValidPhoneNumber(val), { message: 'Invalid phone number' }),
+  whatsapp: z.union([z.string().refine((val) => isValidPhoneNumber(val), { message: 'Invalid WhatsApp number' }), z.literal('')]).optional(),
   dob: z.string().optional(),
   birthTime: z.string().optional(),
   birthPlace: z.string().optional(),
@@ -37,7 +38,7 @@ export async function POST(req) {
       <h2>New Service Enquiry</h2>
       <p><strong>Service:</strong> ${data.serviceTitle}</p>
       <p><strong>Name:</strong> ${data.name}</p>
-      <p><strong>Email:</strong> ${data.email}</p>
+      ${data.email ? `<p><strong>Email:</strong> ${data.email}</p>` : ''}
       <p><strong>Phone:</strong> ${data.phone}</p>
       ${data.whatsapp ? `<p><strong>WhatsApp:</strong> ${data.whatsapp}</p>` : ''}
       ${data.dob ? `<p><strong>Date of Birth:</strong> ${data.dob}</p>` : ''}
@@ -59,11 +60,13 @@ export async function POST(req) {
       subject: `New Enquiry: ${data.serviceTitle} - ${data.name}`,
       html: notifyHtml
     });
-    await sendMail({
-      to: data.email,
-      subject: `We received your request - ${settings.siteName}`,
-      html: userHtml
-    });
+    if (data.email) {
+      await sendMail({
+        to: data.email,
+        subject: `We received your request - ${settings.siteName}`,
+        html: userHtml
+      });
+    }
 
     if (adminMailOk) {
       order.emailSent = true;

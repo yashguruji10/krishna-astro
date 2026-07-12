@@ -2,20 +2,34 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { isValidPhoneNumber } from 'react-phone-number-input';
 import { buildWhatsAppLink } from '@/lib/whatsapp';
+import PhoneField from './PhoneField';
 
 export default function ContactForm({ locale }) {
   const t = useTranslations('service');
   const [status, setStatus] = useState('idle');
   const [whatsappLink, setWhatsappLink] = useState(null);
   const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
+  const [phoneError, setPhoneError] = useState('');
 
   function handleChange(e) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  function handlePhoneChange(value) {
+    setForm((prev) => ({ ...prev, phone: value || '' }));
+    if (phoneError) setPhoneError('');
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!form.phone || !isValidPhoneNumber(form.phone)) {
+      setPhoneError(t('invalidPhone'));
+      return;
+    }
+
     setStatus('submitting');
     try {
       const res = await fetch('/api/contact', {
@@ -25,12 +39,14 @@ export default function ContactForm({ locale }) {
       });
       if (!res.ok) throw new Error('failed');
       const data = await res.json();
-      setWhatsappLink(
-        buildWhatsAppLink(
-          data.adminWhatsapp,
-          `New Contact Enquiry\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nMessage: ${form.message}`
-        )
-      );
+      const lines = [
+        'New Contact Enquiry',
+        `Name: ${form.name}`,
+        `Phone: ${form.phone}`,
+        form.email ? `Email: ${form.email}` : null,
+        `Message: ${form.message}`
+      ].filter(Boolean);
+      setWhatsappLink(buildWhatsAppLink(data.adminWhatsapp, lines.join('\n')));
       setStatus('success');
     } catch {
       setStatus('error');
@@ -59,13 +75,10 @@ export default function ContactForm({ locale }) {
         <input className="input-field" type="text" name="name" required value={form.name} onChange={handleChange} />
       </label>
       <label className="block">
-        <span className="block text-sm font-medium text-gray-700 mb-1">{t('email')} *</span>
-        <input className="input-field" type="email" name="email" required value={form.email} onChange={handleChange} />
+        <span className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</span>
+        <input className="input-field" type="email" name="email" value={form.email} onChange={handleChange} />
       </label>
-      <label className="block">
-        <span className="block text-sm font-medium text-gray-700 mb-1">{t('phone')} *</span>
-        <input className="input-field" type="tel" name="phone" required value={form.phone} onChange={handleChange} />
-      </label>
+      <PhoneField label={`${t('phone')} *`} value={form.phone} onChange={handlePhoneChange} error={phoneError} />
       <label className="block">
         <span className="block text-sm font-medium text-gray-700 mb-1">{t('message')}</span>
         <textarea className="input-field" name="message" rows={4} value={form.message} onChange={handleChange} />
